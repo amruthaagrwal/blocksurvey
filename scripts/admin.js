@@ -6,7 +6,14 @@ import { dimensions } from './questions.js';
 // --- Utility: Lazy Loader ---
 function loadScript(src) {
     return new Promise((resolve, reject) => {
-        if (document.querySelector(`script[src="${src}"]`)) return resolve();
+        if (typeof Chart !== 'undefined') return resolve();
+        if (document.querySelector(`script[src="${src}"]`)) {
+            // Script tag exists but may still be loading
+            const check = setInterval(() => {
+                if (typeof Chart !== 'undefined') { clearInterval(check); resolve(); }
+            }, 50);
+            return;
+        }
         const script = document.createElement('script');
         script.src = src;
         script.onload = resolve;
@@ -104,10 +111,10 @@ async function fetchData() {
         if (sError) throw sError;
         rawDimensionScores = scores || [];
 
+        await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
         updateOverview();
         renderTable();
         fetchSettings();
-        await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
         renderAnalytics();
     } catch (error) {
         console.error("Dashboard Fetch Error:", error);

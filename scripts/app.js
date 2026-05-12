@@ -104,7 +104,7 @@ function setupAdminLogin() {
 }
 
 function enterAdminDashboard() {
-    document.getElementById('admin-dashboard-overlay').style.display = 'block';
+    document.getElementById('admin-dashboard-overlay').style.display = 'flex';
     // Initialize admin logic if not already done
     initAdmin();
 }
