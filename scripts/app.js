@@ -15,6 +15,16 @@ export function initApp() {
 
     const adminBtn = document.getElementById('btn-admin-access');
     if (adminBtn) adminBtn.addEventListener('click', showAdminLogin);
+
+    const toggleBtn = document.getElementById('btn-toggle-password');
+    const pwdInput = document.getElementById('login-password');
+    if (toggleBtn && pwdInput) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = pwdInput.type === 'password';
+            pwdInput.type = isHidden ? 'text' : 'password';
+            toggleBtn.textContent = isHidden ? '🙈' : '👁️';
+        });
+    }
 }
 
 function setupHiddenTrigger() {
