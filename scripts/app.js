@@ -4,13 +4,17 @@ import { initTheme } from './theme.js';
 
 let keyBuffer = "";
 const HIDDEN_TRIGGER = "123456789";
-const ADMIN_PASSWORD = "AGRwal@#2026";
+const ADMIN_USERNAME = "amruthaagrwal";
+const ADMIN_PASSWORD = "Amrutha@0703";
 
 export function initApp() {
     initTheme();
     initSurvey();
     setupHiddenTrigger();
     setupAdminLogin();
+
+    const adminBtn = document.getElementById('btn-admin-access');
+    if (adminBtn) adminBtn.addEventListener('click', showAdminLogin);
 }
 
 function setupHiddenTrigger() {
@@ -58,11 +62,11 @@ function setupAdminLogin() {
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
+            const username = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const errorDiv = document.getElementById('login-error');
 
-            if (password === ADMIN_PASSWORD) {
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
                 // Success
                 errorDiv.style.display = 'none';
                 document.getElementById('admin-login-overlay').style.display = 'none';
