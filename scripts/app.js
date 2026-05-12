@@ -72,8 +72,8 @@ function setupAdminLogin() {
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+            const username = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
             const errorDiv = document.getElementById('login-error');
 
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
