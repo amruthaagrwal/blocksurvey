@@ -106,8 +106,9 @@ async function fetchData() {
 
         updateOverview();
         renderTable();
-        renderAnalytics();
         fetchSettings();
+        await loadScript('https://cdn.jsdelivr.net/npm/chart.js');
+        renderAnalytics();
     } catch (error) {
         console.error("Dashboard Fetch Error:", error);
         alert(`Failed to load dashboard data: ${error.message || 'Unknown Error'}. Please ensure Supabase RLS allows read access.`);
