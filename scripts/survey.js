@@ -282,10 +282,10 @@ async function handleDemoSubmit(e) {
     const demographics = Object.fromEntries(formData.entries());
     demographics.languages_known = formData.getAll('languages_known').map(v =>
         v === 'Other' ? (document.getElementById('lang-other-input').value.trim() || 'Other') : v
-    ).join(', ');
+    );
     demographics.computer_skills = formData.getAll('computer_skills').map(v =>
         v === 'Other' ? (document.getElementById('skill-other-input').value.trim() || 'Other') : v
-    ).join(', ');
+    );
     // Remove helper-only fields that are NOT columns in the DB
     delete demographics.languages_known_other;
     delete demographics.computer_skills_other;
