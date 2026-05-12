@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockage Survey - Managerial Effectiveness</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./styles/main.css">
+    <link rel="stylesheet" href="./styles/survey.css">
+    <link rel="stylesheet" href="./styles/admin.css">
+    
+    <!-- Libraries (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="toast" class="toast"></div>
+
+    <!-- Resume Prompt -->
+    <div id="resume-prompt" class="overlay" style="display: none;">
+        <div class="modal">
+            <h2>Resume Session?</h2>
+            <p>We found an incomplete survey from your previous session.</p>
+            <div class="modal-actions">
+                <button id="btn-restart" class="btn-secondary">Start Over</button>
+                <button id="btn-resume" class="btn-primary">Resume Survey</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container header-flex">
+            <h1 class="logo-text">Blockage Survey</h1>
+            
+            <div id="progress-container" class="progress-container" style="display: none;">
+                <span id="progress-text">0 / 110 Questions Answered</span>
+                <div class="progress-bar">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                <span class="sun-icon">☀️</span>
+                <span class="moon-icon">🌙</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Section 1: Introduction -->
+        <section id="section-intro" class="section glass-card fade-in">
+            <div class="hero-image-container">
+                <img src="./assets/hero.png" alt="Survey Hero" class="hero-image">
+                <div class="hero-overlay">
+                    <h1 class="title">Blockage Survey</h1>
+                    <h2 class="subtitle">Managerial Effectiveness Self-Review Tool</h2>
+                </div>
+            </div>
+            
+            <div class="content-block mt-4">
+                <h3>Purpose & Confidentiality</h3>
+                <p>This tool is designed to measure managerial effectiveness across 11 dimensions. It is intended as an aid for self-review and reflection, not as a scientific or diagnostic measure.</p>
+                <p>This questionnaire is being conducted solely for academic and research purposes as part of a student project. The information collected will be kept confidential and will be used only in aggregated form for analysis.</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Instructions to Participants</h3>
+                <ol>
+                    <li>There are no right or wrong answers.</li>
+                    <li>Please respond honestly based on your true experiences.</li>
+                    <li>Avoid overthinking your responses, your first instinct is often the most accurate.</li>
+                    <li>Avoid giving socially desirable or ideal answers.</li>
+                    <li>If you have doubts about a question, choose the response closest to the truth.</li>
+                </ol>
+            </div>
+
+            <div class="content-block">
+                <h3>How to Respond</h3>
+                <ol>
+                    <li>Read each statement carefully.</li>
+                    <li>Click “Yes” if the statement is true for you.</li>
+                    <li>Click “No” if the statement is not true for you.</li>
+                    <li>Please answer all 110 statements.</li>
+                </ol>
+            </div>
+
+            <div class="content-block contact-info">
+                <p>For any queries or clarifications regarding this questionnaire:</p>
+                <p>Email: <a href="mailto:amruthahrmsw@gmail.com">amruthahrmsw@gmail.com</a></p>
+            </div>
+
+            <button id="btn-start-survey" class="btn-primary btn-large w-100 mt-4">Start Survey</button>
+        </section>
+
+        <!-- Section 2: Demographics -->
+        <section id="section-demographics" class="section glass-card fade-in" style="display: none;">
+            <h2 class="section-title">Participant Details</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">All fields marked with <span class="required">*</span> are mandatory.</p>
+            <div id="demo-error-banner" class="demo-error-banner" style="display:none;"></div>
+            <form id="demographics-form" class="form-grid" novalidate>
+                <!-- Group 1: Personal info -->
+                <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" name="full_name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Employee ID <span class="required">*</span></label>
+                    <input type="text" name="employee_id" required placeholder="Enter your Employee ID">
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Region / Branch / Location <span class="required">*</span></label>
+                    <textarea name="region" required placeholder="Enter your region, branch, or specific location details..." rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Vertical / Category <span class="required">*</span></label>
+                    <select name="vertical" required>
+                        <option value="">Select Vertical...</option>
+                        <option value="CH">CH (Corporate Headquarters)</option>
+                        <option value="SFM">SFM (Sales Force Management)</option>
+                    </select>
+                </div>
+
+                <!-- Group 2: Education -->
+                <div class="form-group">
+                    <label>Highest Level of Education <span class="required">*</span></label>
+                    <select name="education_level" required>
+                        <option value="">Select...</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Undergraduate">Undergraduate</option>
+                        <option value="Postgraduate">Postgraduate</option>
+                        <option value="Doctorate">Doctorate</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stream / Specialization <span class="required">*</span></label>
+                    <select name="stream" required>
+                        <option value="">Select...</option>
+                        <option value="Science">Science</option>
+                        <option value="Commerce">Commerce</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Management">Management</option>
+                        <option value="Logistics">Logistics</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Course Name <span class="required">*</span></label>
+                    <input type="text" name="course_name" required placeholder="e.g. B.Com, MBA">
+                </div>
+                <div class="form-group">
+                    <label>Year of Passing <span class="required">*</span></label>
+                    <input type="number" name="year_of_passing" required min="1970" max="2030" placeholder="e.g. 2018">
+                </div>
+                <div class="form-group">
+                    <label>Percentage or CGPA <span class="required">*</span></label>
+                    <input type="text" name="percentage_cgpa" required placeholder="e.g. 78% or 8.5">
+                </div>
+                <div class="form-group">
+                    <label>Additional Certifications <span class="required">*</span></label>
+                    <input type="text" name="certifications" required placeholder="e.g. Six Sigma, PMP (Enter 'None' if none)">
+                </div>
+
+                <!-- Group 3: Work Info -->
+                <div class="form-group full-width section-divider">
+                    <hr>
+                    <h3>Professional Details</h3>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Designation <span class="required">*</span></label>
+                    <input type="text" name="current_designation" required placeholder="e.g. Branch Manager">
+                </div>
+                <div class="form-group">
+                    <label>Current Branch <span class="required">*</span></label>
+                    <input type="text" name="current_branch" required placeholder="e.g. Chennai">
+                </div>
+                <div class="form-group">
+                    <label>Department <span class="required">*</span></label>
+                    <input type="text" name="department" required placeholder="e.g. Operations">
+                </div>
+                <div class="form-group">
+                    <label>Total Years at Agarwal <span class="required">*</span></label>
+                    <input type="number" step="0.1" name="experience_at_agarwal" required min="0" placeholder="e.g. 3.5">
+                </div>
+                <div class="form-group">
+                    <label>Previous Roles Handled <span class="required">*</span></label>
+                    <input type="text" name="previous_roles" required placeholder="e.g. Executive, Supervisor">
+                </div>
+                <div class="form-group">
+                    <label>Total Years of Work Experience <span class="required">*</span></label>
+                    <input type="number" step="0.1" name="total_experience" required min="0" placeholder="e.g. 7">
+                </div>
+                <div class="form-group full-width">
+                    <label>Previous Designations <span class="required">*</span></label>
+                    <input type="text" name="previous_designations" required placeholder="e.g. Trainee, Team Leader">
+                </div>
+                <div class="form-group full-width">
+                    <label>Key Responsibilities <span class="required">*</span></label>
+                    <textarea name="key_responsibilities" rows="3" required placeholder="Briefly describe your key job responsibilities"></textarea>
+                </div>
+
+                <!-- Group 4: Skills -->
+                <div class="form-group full-width section-divider">
+                    <hr>
+                    <h3>Skills &amp; Languages</h3>
+                </div>
+
+                <div class="form-group checkbox-group" id="langs-group">
+                    <label>Languages Known <span class="required">*</span> <span id="langs-error" class="field-error" style="display:none;">Please select at least one language.</span></label>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" name="languages_known" value="English"> English</label>
+                        <label><input type="checkbox" name="languages_known" value="Tamil"> Tamil</label>
+                        <label><input type="checkbox" name="languages_known" value="Kannada"> Kannada</label>
+                        <label><input type="checkbox" name="languages_known" value="Hindi"> Hindi</label>
+                        <label><input type="checkbox" name="languages_known" value="Telugu"> Telugu</label>
+                        <label><input type="checkbox" name="languages_known" value="Malayalam"> Malayalam</label>
+                        <label><input type="checkbox" name="languages_known" value="Other"> Other</label>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group" id="skills-group">
+                    <label>Computer Skills <span class="required">*</span> <span id="skills-error" class="field-error" style="display:none;">Please select at least one skill.</span></label>
+                    <div class="checkbox-grid">
+                        <label><input type="checkbox" name="computer_skills" value="MS Excel"> MS Excel</label>
+                        <label><input type="checkbox" name="computer_skills" value="MS Word"> MS Word</label>
+                        <label><input type="checkbox" name="computer_skills" value="PowerPoint"> PowerPoint</label>
+                        <label><input type="checkbox" name="computer_skills" value="Google Sheets"> Google Sheets</label>
+                        <label><input type="checkbox" name="computer_skills" value="Google Forms"> Google Forms</label>
+                        <label><input type="checkbox" name="computer_skills" value="AI Tools"> AI Tools</label>
+                        <label><input type="checkbox" name="computer_skills" value="Other"> Other</label>
+                    </div>
+                </div>
+
+                <div class="form-group full-width form-actions mt-4">
+                    <button type="submit" id="btn-proceed-assessment" class="btn-primary w-100">Proceed to Assessment →</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Section 3: Survey Questions (Single Scrollable Page) -->
+        <section id="section-survey" class="section glass-card fade-in" style="display: none; padding: 1.5rem;">
+            <div id="questions-list" class="questions-list">
+                <!-- Questions injected here by JS -->
+            </div>
+            
+            <div class="submit-container sticky-bottom" id="submit-container">
+                <button id="btn-submit-main" class="btn-primary btn-large w-100">Submit Assessment</button>
+                <p id="validation-msg" class="validation-msg" style="display: none;">Please answer all mandatory questions to submit.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Results -->
+        <section id="section-results" class="section glass-card fade-in" style="display: none;">
+            
+            <div id="pdf-content">
+                <div class="results-header">
+                    <h2>Assessment Results</h2>
+                    <p>Managerial Effectiveness Self-Review</p>
+                </div>
+                
+                <div class="score-overview">
+                    <div class="score-circle">
+                        <span class="score-label">Total Score</span>
+                        <h3 id="score-text">-- / 110</h3>
+                    </div>
+                </div>
+
+                <div id="interpretation-summary" class="interpretation-card mt-4">
+                    <!-- Populated via JS -->
+                </div>
+
+                <div class="chart-container mt-4">
+                    <canvas id="results-chart"></canvas>
+                </div>
+
+                <div class="results-grid mt-4">
+                    <div class="results-column">
+                        <h3 class="column-title"><span class="icon">⭐</span> Top Strengths</h3>
+                        <div id="strengths-list" class="cards-list"></div>
+                    </div>
+                    
+                    <div class="results-column">
+                        <h3 class="column-title"><span class="icon">🚧</span> Focus Areas (Blockages)</h3>
+                        <div id="blockages-list" class="cards-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-actions mt-4 text-center">
+                <button id="btn-download-pdf" class="btn-primary">Download PDF Report</button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+       HIDDEN ADMIN SYSTEM (Invisible to Normal Users)
+       ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Hidden Admin Login Modal -->
+    <div id="admin-login-overlay" class="overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Admin Authentication</h2>
+                <button class="close-modal" id="btn-close-admin-login">×</button>
+            </div>
+            <form id="admin-login-form">
+                <div class="form-group text-left mt-4">
+                    <label>Admin Email</label>
+                    <input type="email" id="login-email" placeholder="admin@example.com" required>
+                </div>
+                <div class="form-group text-left mt-4">
+                    <label>Master Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <div class="mt-4 text-error" id="login-error" style="color: #ef4444; display: none; font-size: 0.85rem;"></div>
+                <button type="submit" id="btn-login" class="btn-primary w-100 mt-4">Access Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden Admin Dashboard (Absolute Full-Page Overlay) -->
+    <div id="admin-dashboard-overlay" class="admin-layout" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 10000; overflow: hidden;">
+        
+        <!-- Sidebar -->
+        <aside class="admin-sidebar glass-card">
+            <h2 class="logo-text">Creator Panel</h2>
+            <nav class="admin-nav mt-4">
+                <button class="nav-item active" data-target="dashboard-overview">Overview</button>
+                <button class="nav-item" data-target="dashboard-respondents">Respondents</button>
+                <button class="nav-item" data-target="dashboard-analytics">Analytics</button>
+                <button class="nav-item" data-target="dashboard-settings">Settings</button>
+            </nav>
+            <div class="spacer" style="flex: 1;"></div>
+            <button id="admin-logout" class="btn-secondary w-100">Exit Admin</button>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-content">
+            
+            <!-- View 1: Overview -->
+            <div id="dashboard-overview" class="view-section active">
+                <h1 class="title">Research Overview</h1>
+                <div class="stats-grid mt-4">
+                    <div class="stat-card glass-card">
+                        <h3>Total Responses</h3>
+                        <div class="stat-value" id="stat-total">-</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Avg Score</h3>
+                        <div class="stat-value" id="stat-avg-score">-</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Highest Score</h3>
+                        <div class="stat-value" id="stat-high-score">-</div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <h3>Avg Duration</h3>
+                        <div class="stat-value" id="stat-avg-time">-</div>
+                    </div>
+                </div>
+                <div class="glass-card mt-4">
+                    <h3>Overall Dimension Averages</h3>
+                    <div class="chart-container-large" style="height: 350px;">
+                        <canvas id="overview-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 2: Respondents -->
+            <div id="dashboard-respondents" class="view-section" style="display: none;">
+                <div class="header-flex">
+                    <h1 class="title">Individual Data</h1>
+                    <div class="actions-group">
+                        <button id="btn-export-excel" class="btn-secondary">Export .xlsx</button>
+                        <button id="btn-export-csv" class="btn-primary">Export .csv</button>
+                    </div>
+                </div>
+                <div class="glass-card mt-4">
+                    <div class="filters-grid mb-4">
+                        <input type="text" id="search-input" placeholder="Search Name/ID...">
+                        <input type="text" id="filter-region" placeholder="Filter by Region...">
+                        <select id="filter-vertical"><option value="">All Verticals</option><option value="CH">CH</option><option value="SFM">SFM</option></select>
+                        <select id="filter-quality"><option value="">All Qualities</option><option value="Good">Good</option><option value="Moderate">Moderate</option><option value="Suspicious">Suspicious</option></select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Emp ID</th>
+                                    <th>Name</th>
+                                    <th>Vertical</th>
+                                    <th>Region</th>
+                                    <th>Score</th>
+                                    <th>Quality</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="respondents-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 3: Analytics -->
+            <div id="dashboard-analytics" class="view-section" style="display: none;">
+                <h1 class="title">Comparative Analytics</h1>
+                <div class="results-grid mt-4">
+                    <div class="glass-card">
+                        <h3>Vertical Distribution (CH vs SFM)</h3>
+                        <canvas id="vertical-distribution-chart"></canvas>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Dimension Strength Heatmap</h3>
+                        <div id="heatmap-container" class="heatmap-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 4: Settings -->
+            <div id="dashboard-settings" class="view-section" style="display: none;">
+                <h1 class="title">Survey Controls</h1>
+                <form id="admin-settings-form" class="glass-card mt-4 form-grid">
+                    <div class="form-group full-width">
+                        <label>Public Survey Title</label>
+                        <input type="text" name="survey_title">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="is_active"><option value="true">Active</option><option value="false">Inactive</option></select>
+                    </div>
+                    <div class="form-group full-width mt-4">
+                        <button type="submit" class="btn-primary w-100">Save System Settings</button>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Individual Details Modal (Admin Only) -->
+    <div id="details-modal" class="overlay" style="display: none; z-index: 20000;">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h2>Respondent Deep-Dive</h2>
+                <button class="close-modal" id="btn-close-details">×</button>
+            </div>
+            <div class="modal-body" id="details-content"></div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="window.print()">Print Details</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Initialization -->
+    <script type="module">
+        import { initApp } from './scripts/app.js';
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
