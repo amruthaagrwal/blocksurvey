@@ -124,8 +124,8 @@
                     <label>Vertical / Category <span class="required">*</span></label>
                     <select name="vertical" required>
                         <option value="">Select Vertical...</option>
-                        <option value="CH">CH (Corporate Headquarters)</option>
-                        <option value="SFM">SFM (Sales Force Management)</option>
+                        <option value="CH">CH (Centre Head)</option>
+                        <option value="SFM">SFM (Senior Floor Manager)</option>
                     </select>
                 </div>
 
@@ -225,8 +225,9 @@
                         <label><input type="checkbox" name="languages_known" value="Hindi"> Hindi</label>
                         <label><input type="checkbox" name="languages_known" value="Telugu"> Telugu</label>
                         <label><input type="checkbox" name="languages_known" value="Malayalam"> Malayalam</label>
-                        <label><input type="checkbox" name="languages_known" value="Other"> Other</label>
+                        <label><input type="checkbox" name="languages_known" value="Other" id="lang-other-check"> Other</label>
                     </div>
+                    <input type="text" id="lang-other-input" name="languages_known_other" placeholder="Please specify language..." style="display:none; margin-top:0.5rem; width:100%; box-sizing:border-box;">
                 </div>
 
                 <div class="form-group checkbox-group" id="skills-group">
@@ -238,8 +239,9 @@
                         <label><input type="checkbox" name="computer_skills" value="Google Sheets"> Google Sheets</label>
                         <label><input type="checkbox" name="computer_skills" value="Google Forms"> Google Forms</label>
                         <label><input type="checkbox" name="computer_skills" value="AI Tools"> AI Tools</label>
-                        <label><input type="checkbox" name="computer_skills" value="Other"> Other</label>
+                        <label><input type="checkbox" name="computer_skills" value="Other" id="skill-other-check"> Other</label>
                     </div>
+                    <input type="text" id="skill-other-input" name="computer_skills_other" placeholder="Please specify skill..." style="display:none; margin-top:0.5rem; width:100%; box-sizing:border-box;">
                 </div>
 
                 <div class="form-group full-width form-actions mt-4">

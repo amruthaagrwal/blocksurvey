@@ -107,6 +107,18 @@ function attachEventListeners() {
 
     UI.demoForm.addEventListener('submit', handleDemoSubmit);
 
+    // Show/hide "Other" text inputs for languages and skills
+    document.getElementById('lang-other-check')?.addEventListener('change', (e) => {
+        const input = document.getElementById('lang-other-input');
+        input.style.display = e.target.checked ? 'block' : 'none';
+        if (!e.target.checked) input.value = '';
+    });
+    document.getElementById('skill-other-check')?.addEventListener('change', (e) => {
+        const input = document.getElementById('skill-other-input');
+        input.style.display = e.target.checked ? 'block' : 'none';
+        if (!e.target.checked) input.value = '';
+    });
+
     if (UI.btnSubmit) {
         UI.btnSubmit.addEventListener('click', submitFinalSurvey);
     }
@@ -268,8 +280,12 @@ async function handleDemoSubmit(e) {
     // ─── 2. Collect & Submit ─────────────────────────────────────────────
     const formData = new FormData(form);
     const demographics = Object.fromEntries(formData.entries());
-    demographics.languages_known = formData.getAll('languages_known');
-    demographics.computer_skills = formData.getAll('computer_skills');
+    demographics.languages_known = formData.getAll('languages_known').map(v =>
+        v === 'Other' ? (document.getElementById('lang-other-input').value.trim() || 'Other') : v
+    );
+    demographics.computer_skills = formData.getAll('computer_skills').map(v =>
+        v === 'Other' ? (document.getElementById('skill-other-input').value.trim() || 'Other') : v
+    );
     
     const btn = document.getElementById('btn-proceed-assessment');
     btn.disabled = true;

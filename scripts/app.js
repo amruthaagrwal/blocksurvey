@@ -4,8 +4,8 @@ import { initTheme } from './theme.js';
 
 let keyBuffer = "";
 const HIDDEN_TRIGGER = "123456789";
-const ADMIN_USERNAME = "amruthaagrwal";
-const ADMIN_PASSWORD = "Amrutha@0703";
+const ADMIN_USERNAME = "Agarwal2026";
+const ADMIN_PASSWORD = "Agarwal#2026";
 
 export function initApp() {
     initTheme();
