@@ -25,7 +25,9 @@ const MIME_TYPES = {
 http.createServer((request, response) => {
     console.log('request ', request.url);
 
-    let filePath = '.' + request.url;
+    // Strip query string so ?v=1 cache-busting params don't cause 404s
+    const urlPath = request.url.split('?')[0];
+    let filePath = '.' + urlPath;
     if (filePath === './') {
         filePath = './index.html';
     }
