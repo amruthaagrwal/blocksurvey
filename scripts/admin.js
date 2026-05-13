@@ -193,7 +193,10 @@ function renderTable() {
             <td>${r.total_score}</td>
             <td><span class="quality-badge quality-${(r.quality_flag || 'Good').toLowerCase()}">${r.quality_flag}</span></td>
             <td>${new Date(r.created_at).toLocaleDateString()}</td>
-            <td><button class="btn-view-details" onclick="window.viewRespondentDetails('${r.id}')">View</button></td>
+            <td style="display:flex; gap:0.4rem; align-items:center;">
+                <button class="btn-view-details" onclick="window.viewRespondentDetails('${r.id}')">View</button>
+                <button class="btn-delete-row" onclick="window.deleteRespondent('${r.id}', '${r.full_name?.replace(/'/g, "\\'")}')">Delete</button>
+            </td>
         </tr>
     `).join('');
 }
@@ -292,6 +295,45 @@ window.viewRespondentDetails = async (id) => {
         `;
     } catch (err) {
         UI.detailsContent.innerHTML = `<div class="error-message">Error loading details: ${err.message}</div>`;
+    }
+};
+
+window.deleteRespondent = async (id, name) => {
+    const confirmed = window.confirm(`Delete response from "${name}"?\n\nThis will permanently remove all their answers and scores. This cannot be undone.`);
+    if (!confirmed) return;
+
+    const sb = getSupabase();
+    if (!sb) { alert('Supabase not configured.'); return; }
+
+    try {
+        // Delete child records first to avoid FK constraint errors
+        const { error: rErr } = await sb.from('responses').delete().eq('respondent_id', id);
+        if (rErr) throw rErr;
+
+        const { error: sErr } = await sb.from('dimension_scores').delete().eq('respondent_id', id);
+        if (sErr) throw sErr;
+
+        const { error: dErr } = await sb.from('respondents').delete().eq('id', id);
+        if (dErr) throw dErr;
+
+        // Remove from local data arrays and re-render
+        rawRespondents = rawRespondents.filter(r => r.id !== id);
+        rawDimensionScores = rawDimensionScores.filter(s => s.respondent_id !== id);
+
+        updateOverview();
+        renderTable();
+        renderAnalytics();
+
+        // Show brief success toast
+        const toast = document.createElement('div');
+        toast.textContent = `✓ Deleted response from "${name}"`;
+        toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:0.75rem 1.5rem;border-radius:8px;z-index:99999;font-weight:600;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+
+    } catch (err) {
+        console.error('Delete error:', err);
+        alert('Failed to delete: ' + err.message);
     }
 };
 
