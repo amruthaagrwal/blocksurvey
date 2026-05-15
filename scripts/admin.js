@@ -184,18 +184,18 @@ function renderTable() {
         return sortConfig.direction === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
     });
 
-    UI.tbody.innerHTML = filtered.map(r => `
+    UI.tbody.innerHTML = filtered.map((r, i) => `
         <tr>
-            <td>${r.employee_id}</td>
-            <td><strong>${r.full_name}</strong></td>
+            <td>${r.employee_id || '-'}</td>
+            <td><strong>${r.full_name || 'Anonymous'}</strong></td>
             <td>${r.vertical || '-'}</td>
             <td>${r.region || '-'}</td>
             <td>${r.total_score}</td>
-            <td><span class="quality-badge quality-${(r.quality_flag || 'Good').toLowerCase()}">${r.quality_flag}</span></td>
+            <td><span class="quality-badge quality-${(r.quality_flag || 'Good').toLowerCase()}">${r.quality_flag || '-'}</span></td>
             <td>${new Date(r.created_at).toLocaleDateString()}</td>
             <td style="display:flex; gap:0.4rem; align-items:center;">
                 <button class="btn-view-details" onclick="window.viewRespondentDetails('${r.id}')">View</button>
-                <button class="btn-delete-row" onclick="window.deleteRespondent('${r.id}', '${r.full_name?.replace(/'/g, "\\'")}')">Delete</button>
+                <button class="btn-delete-row" onclick="window.deleteRespondent('${r.id}', '${(r.full_name || 'Respondent ' + (i+1))?.replace(/'/g, "\\'")}')">Delete</button>
             </td>
         </tr>
     `).join('');
