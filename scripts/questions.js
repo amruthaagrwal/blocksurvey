@@ -94,7 +94,7 @@ export const questions = [
     { id: 19, text: "I believe my management style is appropriate." },
     { id: 20, text: "I have full support of my subordinates." },
     { id: 21, text: "I put considerable energy into the training and development of my subordinates." },
-    { id: 22, text: "I believe that techniques for developing effective groups are important for to my effectiveness." },
+    { id: 22, text: "I believe that techniques for developing effective groups are important to my effectiveness." },
     { id: 23, text: "I don’t mind if people don’t like me sometimes." },
     { id: 24, text: "I take the right option rather than easy option." },
     { id: 25, text: "My work and personal goal are largely complementary." },

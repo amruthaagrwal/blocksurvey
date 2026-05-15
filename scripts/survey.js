@@ -102,21 +102,7 @@ async function applySettings() {
 // --- Event Listeners ---
 function attachEventListeners() {
     document.getElementById('btn-start-survey').addEventListener('click', () => {
-        setSection('demographics');
-    });
-
-    UI.demoForm.addEventListener('submit', handleDemoSubmit);
-
-    // Show/hide "Other" text inputs for languages and skills
-    document.getElementById('lang-other-check')?.addEventListener('change', (e) => {
-        const input = document.getElementById('lang-other-input');
-        input.style.display = e.target.checked ? 'block' : 'none';
-        if (!e.target.checked) input.value = '';
-    });
-    document.getElementById('skill-other-check')?.addEventListener('change', (e) => {
-        const input = document.getElementById('skill-other-input');
-        input.style.display = e.target.checked ? 'block' : 'none';
-        if (!e.target.checked) input.value = '';
+        setSection('survey');
     });
 
     if (UI.btnSubmit) {
@@ -193,16 +179,6 @@ function renderCurrentSection() {
 
     if (state.currentSection === 'intro') {
         UI.introSection.style.display = 'block';
-    } else if (state.currentSection === 'demographics') {
-        UI.demoSection.style.display = 'block';
-        // Populate existing demographic data if any
-        for (const key in state.demographics) {
-            const el = UI.demoForm.elements[key];
-            if (el) {
-                if (el.type === 'checkbox') el.checked = true; // simplified, assumes array is handled differently
-                else el.value = state.demographics[key];
-            }
-        }
     } else if (state.currentSection === 'survey') {
         UI.surveySection.style.display = 'block';
         if (!state.startTime) state.startTime = Date.now();
@@ -429,7 +405,6 @@ async function submitFinalSurvey() {
     // Prepare data payload
     const payload = {
         respondent: {
-            ...state.demographics,
             start_time: new Date(state.startTime).toISOString(),
             end_time: new Date().toISOString(),
             duration_seconds: durationSeconds,
@@ -622,8 +597,7 @@ async function downloadPDF() {
     const element = document.getElementById('pdf-content');
     if (!element) return;
 
-    const empId = state.demographics.employee_id || 'unidentified';
-    const cleanEmpId = empId.replace(/[^a-z0-9]/gi, '_');
+    const cleanEmpId = 'blockage_survey';
     
     const opt = {
       margin:       [10, 5, 10, 5],

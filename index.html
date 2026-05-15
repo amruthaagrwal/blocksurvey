@@ -82,13 +82,14 @@
                 </ol>
             </div>
 
-            <div class="content-block">
+            <div class=”content-block”>
                 <h3>How to Respond</h3>
                 <ol>
                     <li>Read each statement carefully.</li>
                     <li>Click “Yes” if the statement is true for you.</li>
                     <li>Click “No” if the statement is not true for you.</li>
                     <li>Please answer all 110 statements.</li>
+                    <li>If your answer is mostly yes, press Yes. If it is mostly no, press No. If you are confused or unsure, you may choose Yes.</li>
                 </ol>
             </div>
 
@@ -100,11 +101,8 @@
             <button id="btn-start-survey" class="btn-primary btn-large w-100 mt-4">Start Survey</button>
         </section>
 
-        <!-- Section 2: Demographics -->
+        <!-- Section 2: Demographics (removed – collected via Google Sheets) -->
         <section id="section-demographics" class="section glass-card fade-in" style="display: none;">
-            <h2 class="section-title">Participant Details</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">All fields marked with <span class="required">*</span> are mandatory.</p>
-            <div id="demo-error-banner" class="demo-error-banner" style="display:none;"></div>
             <form id="demographics-form" class="form-grid" novalidate>
                 <!-- Group 1: Personal info -->
                 <div class="form-group">
