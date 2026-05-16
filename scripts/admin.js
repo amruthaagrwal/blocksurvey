@@ -226,14 +226,8 @@ window.viewRespondentDetails = async (id) => {
                     <section class="mb-4">
                         <h3 class="section-subtitle">Participant Profile</h3>
                         <div class="profile-grid-detailed">
-                            <div class="profile-item"><strong>Full Name:</strong> ${respondent.full_name}</div>
-                            <div class="profile-item"><strong>Employee ID:</strong> ${respondent.employee_id}</div>
-                            <div class="profile-item"><strong>Vertical:</strong> ${respondent.vertical}</div>
-                            <div class="profile-item"><strong>Region:</strong> ${respondent.region}</div>
-                            <div class="profile-item"><strong>Designation:</strong> ${respondent.current_designation}</div>
-                            <div class="profile-item"><strong>Branch:</strong> ${respondent.current_branch}</div>
-                            <div class="profile-item"><strong>Experience:</strong> ${respondent.experience_at_agarwal} yrs (Total: ${respondent.total_experience} yrs)</div>
-                            <div class="profile-item"><strong>Education:</strong> ${respondent.education_level} (${respondent.stream})</div>
+                            <div class="profile-item"><strong>Full Name:</strong> ${respondent.full_name || 'Anonymous'}</div>
+                            <div class="profile-item"><strong>Employee ID:</strong> ${respondent.employee_id || '-'}</div>
                         </div>
                     </section>
 
