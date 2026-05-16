@@ -190,6 +190,7 @@ function renderCurrentSection() {
         if (idEl && state.demographics.employee_id) idEl.value = state.demographics.employee_id;
     } else if (state.currentSection === 'survey') {
         UI.surveySection.style.display = 'block';
+        document.getElementById('progress-container').style.display = 'flex';
         if (!state.startTime) state.startTime = Date.now();
         renderAllQuestions();
         window.addEventListener('scroll', handleScrollProgress);

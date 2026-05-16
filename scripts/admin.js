@@ -412,24 +412,30 @@ async function handleExport(format) {
 
 async function fetchSettings() {
     const sb = getSupabase();
-    const { data } = await sb.from('settings').select('*').eq('id', 'global_settings').single();
-    if (data) {
-        document.getElementById('set-survey-title').value = data.survey_title;
-        document.getElementById('set-is-active').value = data.is_active.toString();
-        document.getElementById('set-banner').value = data.announcement_banner || '';
+    if (!sb) return;
+    try {
+        const { data } = await sb.from('settings').select('*').eq('id', 'global_settings').single();
+        if (data && UI.settingsForm) {
+            const titleEl = UI.settingsForm.elements['survey_title'];
+            const activeEl = UI.settingsForm.elements['is_active'];
+            if (titleEl) titleEl.value = data.survey_title || '';
+            if (activeEl) activeEl.value = data.is_active.toString();
+        }
+    } catch (e) {
+        console.warn('Could not load settings:', e);
     }
 }
 
 async function handleSettingsSubmit(e) {
     e.preventDefault();
     const sb = getSupabase();
+    if (!sb) return;
     const formData = new FormData(UI.settingsForm);
     const { error } = await sb.from('settings').update({
         survey_title: formData.get('survey_title'),
-        is_active: formData.get('is_active') === 'true',
-        announcement_banner: formData.get('announcement_banner')
+        is_active: formData.get('is_active') === 'true'
     }).eq('id', 'global_settings');
-    
+
     if (error) alert(error.message);
     else alert("Settings saved!");
 }
