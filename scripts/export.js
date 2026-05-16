@@ -4,26 +4,11 @@ function prepareExportData(respondents) {
     const dimensionKeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
     return respondents.map(r => {
         const row = {
-            "ID": r.id,
             "Full Name": r.full_name,
             "Employee ID": r.employee_id,
-            "Education": r.education_level,
-            "Stream": r.stream,
-            "Course": r.course_name,
-            "Year of Passing": r.year_of_passing,
-            "CGPA/Percentage": r.percentage_cgpa,
-            "Certifications": r.certifications,
-            "Designation": r.current_designation,
-            "Branch": r.current_branch,
-            "Department": r.department,
-            "Exp at Agarwal": r.experience_at_agarwal,
-            "Total Exp": r.total_experience,
-            "Languages": (r.languages_known || []).join(', '),
-            "Computer Skills": (r.computer_skills || []).join(', '),
             "Total Score": r.total_score,
             "Top 3 Strengths": r.top_strengths,
             "Top 3 Blockages": r.top_blockages,
-            "Duration (s)": r.duration_seconds,
             "Quality Flag": r.quality_flag,
             "Date Submitted": new Date(r.created_at).toLocaleString()
         };
