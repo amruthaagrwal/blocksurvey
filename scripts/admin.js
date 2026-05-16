@@ -188,8 +188,6 @@ function renderTable() {
         <tr>
             <td>${r.employee_id || '-'}</td>
             <td><strong>${r.full_name || 'Anonymous'}</strong></td>
-            <td>${r.vertical || '-'}</td>
-            <td>${r.region || '-'}</td>
             <td>${r.total_score}</td>
             <td><span class="quality-badge quality-${(r.quality_flag || 'Good').toLowerCase()}">${r.quality_flag || '-'}</span></td>
             <td>${new Date(r.created_at).toLocaleDateString()}</td>
