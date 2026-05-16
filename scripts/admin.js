@@ -40,8 +40,6 @@ const UI = {
     
     // Filters
     searchInput: document.getElementById('search-input'),
-    filterRegion: document.getElementById('filter-region'),
-    filterVertical: document.getElementById('filter-vertical'),
     filterQuality: document.getElementById('filter-quality'),
     
     // Table
@@ -75,7 +73,7 @@ function attachEventListeners() {
     });
 
     // Filtering
-    [UI.searchInput, UI.filterRegion, UI.filterVertical, UI.filterQuality].forEach(el => {
+    [UI.searchInput, UI.filterQuality].forEach(el => {
         if (el) el.addEventListener('input', renderTable);
     });
 
@@ -166,16 +164,12 @@ function updateOverview() {
 
 function renderTable() {
     const term = UI.searchInput.value.toLowerCase();
-    const regionFilter = UI.filterRegion.value.trim().toLowerCase();
-    const vertical = UI.filterVertical.value;
     const quality = UI.filterQuality.value;
 
     const filtered = rawRespondents.filter(r => {
         const matchSearch = r.full_name?.toLowerCase().includes(term) || r.employee_id?.toLowerCase().includes(term);
-        const matchRegion = regionFilter ? (r.region && r.region.toLowerCase().includes(regionFilter)) : true;
-        const matchVertical = vertical ? r.vertical === vertical : true;
         const matchQuality = quality ? r.quality_flag === quality : true;
-        return matchSearch && matchRegion && matchVertical && matchQuality;
+        return matchSearch && matchQuality;
     });
 
     filtered.sort((a, b) => {
@@ -330,30 +324,6 @@ window.deleteRespondent = async (id, name) => {
 };
 
 function renderAnalytics() {
-    // 1. CH vs SFM Comparison
-    const verticalStats = { CH: { sum: 0, count: 0 }, SFM: { sum: 0, count: 0 } };
-    rawRespondents.forEach(r => {
-        if (verticalStats[r.vertical]) {
-            verticalStats[r.vertical].sum += r.total_score;
-            verticalStats[r.vertical].count++;
-        }
-    });
-
-    const ctxV = document.getElementById('vertical-distribution-chart'); // Match index.html ID
-    if (ctxV) {
-        if (charts.vertical) charts.vertical.destroy();
-        charts.vertical = new Chart(ctxV, {
-            type: 'pie',
-            data: {
-                labels: ['CH (Corporate)', 'SFM (Sales Force)'],
-                datasets: [{
-                    data: [verticalStats.CH.count, verticalStats.SFM.count],
-                    backgroundColor: ['#3b82f6', '#10b981']
-                }]
-            }
-        });
-    }
-
     // Dimension Heatmap
     const dimMap = {};
     rawDimensionScores.forEach(d => {

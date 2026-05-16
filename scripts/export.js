@@ -7,8 +7,6 @@ function prepareExportData(respondents) {
             "ID": r.id,
             "Full Name": r.full_name,
             "Employee ID": r.employee_id,
-            "Region": r.region,
-            "Vertical": r.vertical,
             "Education": r.education_level,
             "Stream": r.stream,
             "Course": r.course_name,
