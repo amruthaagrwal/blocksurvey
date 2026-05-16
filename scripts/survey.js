@@ -102,8 +102,10 @@ async function applySettings() {
 // --- Event Listeners ---
 function attachEventListeners() {
     document.getElementById('btn-start-survey').addEventListener('click', () => {
-        setSection('survey');
+        setSection('demographics');
     });
+
+    UI.demoForm.addEventListener('submit', handleDemoSubmit);
 
     if (UI.btnSubmit) {
         UI.btnSubmit.addEventListener('click', submitFinalSurvey);
@@ -179,6 +181,13 @@ function renderCurrentSection() {
 
     if (state.currentSection === 'intro') {
         UI.introSection.style.display = 'block';
+    } else if (state.currentSection === 'demographics') {
+        UI.demoSection.style.display = 'block';
+        // Restore saved values if resuming
+        const nameEl = UI.demoForm.elements['full_name'];
+        const idEl = UI.demoForm.elements['employee_id'];
+        if (nameEl && state.demographics.full_name) nameEl.value = state.demographics.full_name;
+        if (idEl && state.demographics.employee_id) idEl.value = state.demographics.employee_id;
     } else if (state.currentSection === 'survey') {
         UI.surveySection.style.display = 'block';
         if (!state.startTime) state.startTime = Date.now();
@@ -194,95 +203,40 @@ function renderCurrentSection() {
 // --- Demographics Form ---
 async function handleDemoSubmit(e) {
     e.preventDefault();
-    
-    // ─── 1. Custom Validation ────────────────────────────────────────────
+
     const form = UI.demoForm;
     const errorBanner = document.getElementById('demo-error-banner');
+
+    // Clear previous errors
+    form.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+    errorBanner.style.display = 'none';
+
+    const fullName = form.elements['full_name'].value.trim();
+    const employeeId = form.elements['employee_id'].value.trim();
     const missingFields = [];
 
-    // Clear previous error states
-    form.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
-    document.getElementById('langs-error').style.display = 'none';
-    document.getElementById('skills-error').style.display = 'none';
-    document.getElementById('langs-group').classList.remove('field-invalid');
-    document.getElementById('skills-group').classList.remove('field-invalid');
-    errorBanner.style.display = 'none';
-    errorBanner.innerHTML = '';
+    if (!fullName) { form.elements['full_name'].classList.add('field-invalid'); missingFields.push('Full Name'); }
+    if (!employeeId) { form.elements['employee_id'].classList.add('field-invalid'); missingFields.push('Employee ID'); }
 
-    // Check all required inputs/selects/textareas
-    const requiredEls = form.querySelectorAll('[required]');
-    requiredEls.forEach(el => {
-        const val = el.value.trim();
-        if (!val) {
-            el.classList.add('field-invalid');
-            const labelEl = el.closest('.form-group')?.querySelector('label');
-            const labelText = labelEl ? labelEl.childNodes[0].textContent.trim() : el.name;
-            missingFields.push(labelText);
-        }
-    });
-
-    // Check Languages Known checkbox group (at least one required)
-    const langs = form.querySelectorAll('input[name="languages_known"]:checked');
-    if (langs.length === 0) {
-        document.getElementById('langs-error').style.display = 'inline';
-        document.getElementById('langs-group').classList.add('field-invalid');
-        missingFields.push('Languages Known');
-    }
-
-    // Check Computer Skills checkbox group (at least one required)
-    const skills = form.querySelectorAll('input[name="computer_skills"]:checked');
-    if (skills.length === 0) {
-        document.getElementById('skills-error').style.display = 'inline';
-        document.getElementById('skills-group').classList.add('field-invalid');
-        missingFields.push('Computer Skills');
-    }
-
-    // If any missing, show banner and scroll to first error
     if (missingFields.length > 0) {
         errorBanner.style.display = 'block';
-        errorBanner.innerHTML = `
-            <strong>⚠ Please fill in all required fields (${missingFields.length} missing):</strong>
-            <ul style="margin: 0.5rem 0 0 1.5rem;">
-                ${missingFields.map(f => `<li>${f}</li>`).join('')}
-            </ul>
-        `;
-        errorBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // Also focus first invalid element
-        const firstInvalid = form.querySelector('.field-invalid');
-        if (firstInvalid) firstInvalid.focus();
+        errorBanner.innerHTML = `<strong>⚠ Please fill in: ${missingFields.join(', ')}</strong>`;
         return;
     }
 
-    // ─── 2. Collect & Submit ─────────────────────────────────────────────
-    const formData = new FormData(form);
-    const demographics = Object.fromEntries(formData.entries());
-    demographics.languages_known = formData.getAll('languages_known').map(v =>
-        v === 'Other' ? (document.getElementById('lang-other-input').value.trim() || 'Other') : v
-    );
-    demographics.computer_skills = formData.getAll('computer_skills').map(v =>
-        v === 'Other' ? (document.getElementById('skill-other-input').value.trim() || 'Other') : v
-    );
-    // Remove helper-only fields that are NOT columns in the DB
-    delete demographics.languages_known_other;
-    delete demographics.computer_skills_other;
-    
     const btn = document.getElementById('btn-proceed-assessment');
     btn.disabled = true;
     btn.textContent = 'Checking...';
-    
+
     try {
-        const exists = await checkEmployeeIdExists(demographics.employee_id);
+        const exists = await checkEmployeeIdExists(employeeId);
         if (exists) {
             alert("This Employee ID has already submitted an assessment.");
-            btn.disabled = false;
-            btn.textContent = 'Proceed to Assessment →';
             return;
         }
-        
-        state.demographics = demographics;
+        state.demographics = { full_name: fullName, employee_id: employeeId };
         setSection('survey');
     } catch (error) {
-        alert("An error occurred verifying your Employee ID. Please check your connection.");
         console.error(error);
     } finally {
         btn.disabled = false;
@@ -405,6 +359,7 @@ async function submitFinalSurvey() {
     // Prepare data payload
     const payload = {
         respondent: {
+            ...state.demographics,
             start_time: new Date(state.startTime).toISOString(),
             end_time: new Date().toISOString(),
             duration_seconds: durationSeconds,
