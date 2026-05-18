@@ -358,24 +358,25 @@ async function handleExport(format) {
     btn.disabled = true;
 
     try {
-        // Fetch ALL individual answers for ALL respondents to include in export
-        // High limit to prevent Supabase default 1000-row cap (100 respondents × 110 = 11000 rows)
-        const { data: allAnswers, error: aError } = await sb.from('responses').select('*').order('question_number', { ascending: true }).limit(500000);
-        if (aError) throw aError;
-
         // Create a reverse map for dimensions (Name -> Key)
         const nameToKey = {};
-        Object.entries(dimensions).forEach(([key, data]) => {
-            nameToKey[data.name] = key;
-        });
+        Object.entries(dimensions).forEach(([key, d]) => { nameToKey[d.name] = key; });
 
-        const data = rawRespondents.map(r => {
+        // Fetch answers PER RESPONDENT (110 rows each) to avoid Supabase's 1000-row server cap
+        const data = await Promise.all(rawRespondents.map(async (r) => {
             const scores = rawDimensionScores.filter(s => s.respondent_id === r.id);
-            const answers = allAnswers.filter(a => a.respondent_id === r.id);
-            
+
+            // Fetch this respondent's 110 answers individually — always under 200 rows
+            const { data: answers, error: aErr } = await sb
+                .from('responses')
+                .select('question_number, answer')
+                .eq('respondent_id', r.id)
+                .order('question_number', { ascending: true });
+            if (aErr) throw aErr;
+
             const exportFields = {};
-            
-            // Map scores
+
+            // Map dimension scores
             scores.forEach(s => {
                 const key = nameToKey[s.dimension_name];
                 if (key) {
@@ -384,18 +385,18 @@ async function handleExport(format) {
                 }
             });
 
-            // Calculate Strengths/Blockages for this respondent
+            // Top strengths / blockages
             const sorted = [...scores].sort((a, b) => b.score - a.score);
             exportFields['top_strengths'] = sorted.slice(0, 3).map(s => s.dimension_name).join(', ');
             exportFields['top_blockages'] = [...sorted].reverse().slice(0, 3).map(s => s.dimension_name).join(', ');
 
-            // Map all 110 individual answers
+            // All 110 answers
             answers.forEach(a => {
                 exportFields[`Q${a.question_number}`] = a.answer === 1 ? 'Yes' : 'No';
             });
 
             return { ...r, ...exportFields };
-        });
+        }));
 
         if (format === 'excel') {
             await exportToExcel(data);
