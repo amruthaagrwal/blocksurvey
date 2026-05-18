@@ -101,11 +101,11 @@ async function fetchData() {
     }
     
     try {
-        const { data: respondents, error: rError } = await sb.from('respondents').select('*');
+        const { data: respondents, error: rError } = await sb.from('respondents').select('*').limit(10000);
         if (rError) throw rError;
         rawRespondents = respondents || [];
 
-        const { data: scores, error: sError } = await sb.from('dimension_scores').select('*');
+        const { data: scores, error: sError } = await sb.from('dimension_scores').select('*').limit(100000);
         if (sError) throw sError;
         rawDimensionScores = scores || [];
 
@@ -203,8 +203,8 @@ window.viewRespondentDetails = async (id) => {
     try {
         // Fetch detailed scores and ALL 110 answers
         const [{ data: scores }, { data: answers }] = await Promise.all([
-            sb.from('dimension_scores').select('*').eq('respondent_id', id),
-            sb.from('responses').select('*').eq('respondent_id', id).order('question_number', { ascending: true })
+            sb.from('dimension_scores').select('*').eq('respondent_id', id).limit(200),
+            sb.from('responses').select('*').eq('respondent_id', id).order('question_number', { ascending: true }).limit(200)
         ]);
 
         // Calculate Strengths and Blockages
@@ -359,7 +359,8 @@ async function handleExport(format) {
 
     try {
         // Fetch ALL individual answers for ALL respondents to include in export
-        const { data: allAnswers, error: aError } = await sb.from('responses').select('*').order('question_number', { ascending: true });
+        // High limit to prevent Supabase default 1000-row cap (100 respondents × 110 = 11000 rows)
+        const { data: allAnswers, error: aError } = await sb.from('responses').select('*').order('question_number', { ascending: true }).limit(500000);
         if (aError) throw aError;
 
         // Create a reverse map for dimensions (Name -> Key)
